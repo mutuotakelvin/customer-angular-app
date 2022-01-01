@@ -10,6 +10,7 @@ import { ICustomer } from './shared/interfaces';
 export class CustomersComponent implements OnInit {
   title: string | null=null;
   people: ICustomer[] = [];
+
     
   constructor() {}
     
