@@ -1,4 +1,5 @@
 import { Component,OnInit, Input } from '@angular/core';
+import { SorterService } from 'src/app/core/sorter.service';
 import { ICustomer } from '../../shared/interfaces';
 
 @Component({
@@ -23,7 +24,7 @@ export class CustomersListComponent implements OnInit {
     filteredCustomers: any[] = [];
     customersOrderTotal: number | null=null;
     currencyCode: string = 'Ksh';
-    constructor() {}
+    constructor(private sorterService: SorterService) {}
         
     ngOnInit() {
 
@@ -53,6 +54,6 @@ export class CustomersListComponent implements OnInit {
     }
 
     sort(prop: string){
-        // A sorter service will handle sorting
+        this.sorterService.sort(this.filteredCustomers, prop);
     }
 }
