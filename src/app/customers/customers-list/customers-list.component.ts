@@ -1,5 +1,5 @@
 import { Component,OnInit, Input } from '@angular/core';
-import { ICustomer } from '../shared/interfaces';
+import { ICustomer } from '../../shared/interfaces';
 
 @Component({
     selector: 'app-customers-list',
