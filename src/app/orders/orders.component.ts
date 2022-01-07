@@ -12,34 +12,72 @@ import { ICustomer, IOrder, IOrderItem } from '../shared/interfaces';
 })
 export class OrdersComponent implements OnInit, OnDestroy {
   orders: IOrder[] = [];
-  customer: string | null = null;
+  customer: ICustomer | undefined;
   errMessage = '';
-  private _getOrderSubscription : Subscription | undefined;
-
+  private _getOrderSubscription: Subscription | undefined;
+  private _getCustomerSubscription: Subscription | undefined;
   constructor(
     private _dataService: DataService,
     private _route: ActivatedRoute
   ) {}
 
-  ngOnDestroy(){
-      if(this._getOrderSubscription instanceof Subscription){
-          this._getOrderSubscription.unsubscribe();
-      }
+  ngOnDestroy() {
+    this._unsubscribeGetOrderSubscription();
+    this._unsubscribeGetCustomerSubscription();
   }
   ngOnInit() {
-    let id = +this._route.snapshot.paramMap.get('id');
+    this._getOrder();
+    this._getCustomer();
+  }
+
+  private _extractIdFromParam() {
+    const id = this._route.snapshot.paramMap.get('id');
+    return id ?? '';
+  }
+
+  private _getOrder() {
+    const id = +this._extractIdFromParam();
+    if (isNaN(id)) {
+      return ;
+    }
+
     this._getOrderSubscription = this._dataService.getOrders$(id).subscribe({
-        next:(order: IOrder[]) => {
-            this.orders = orders;
-        },
-        error: (err) => {
-            console.error('server error:', err);
-            if (err.error instanceof Error) {
-              this.errMessage = err.error.message;
-            } else {
-              this.errMessage = 'Node.js server error';
-            }
-        }
+      next: (orders) => {
+        this.orders = orders;
+      },
+      error:(err) => {
+        console.error('server error:', err);
+        this.errMessage = (err.error instanceof Error) ? err.error.message :'Node.js server error';
+      }
+    });
+  }
+
+  private _getCustomer(){
+    const id = +this._extractIdFromParam();
+    if(isNaN(id)){
+      return ;
+    }
+    this._getCustomerSubscription = this._dataService.getCustomer$(id).subscribe({
+      next: (customerDetails) =>{
+        this.customer = customerDetails;
+        console.log({customerDetails});
+      },
+      error:(err) => {
+        console.error('server error:', err);
+        this.errMessage = (err.error instanceof Error) ? err.error.message :'Node.js server error';
+      }
     })
+  }
+
+  private _unsubscribeGetOrderSubscription(){
+    if (this._getOrderSubscription instanceof Subscription) {
+      this._getOrderSubscription.unsubscribe();
+    }
+  }
+
+  private _unsubscribeGetCustomerSubscription(){
+    if (this._getCustomerSubscription instanceof Subscription){
+      this._getCustomerSubscription.unsubscribe();
+    }
   }
 }
